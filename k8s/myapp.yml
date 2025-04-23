@@ -1,0 +1,112 @@
+# # --- User Service Deployment ---
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: user-service
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: user-service
+#   template:
+#     metadata:
+#       labels:
+#         app: user-service
+#     spec:
+#       containers:
+#       - name: user-service
+#         image: 017820706788.dkr.ecr.us-east-1.amazonaws.com/user-service:latest
+#         ports:
+#         - containerPort: 8000
+# ---
+# # --- User Service ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: user-service
+# spec:
+#   selector:
+#     app: user
+#   ports:
+#   - port: 80
+#     targetPort: 8000
+#   type: NodePort 
+# ---
+# # --- Order Service Deployment ---
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: order-service
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: order-service
+#   template:
+#     metadata:
+#       labels:
+#         app: order-service
+#     spec:
+#       containers:
+#       - name: order-service
+#         image: 017820706788.dkr.ecr.us-east-1.amazonaws.com/order-service:latest
+#         ports:
+#         - containerPort: 9000
+# ---
+# # --- Order Service ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: order-service
+# spec:
+#   selector:
+#     app: order
+#   ports:
+#   - port: 80
+#     targetPort: 9000
+#   type: NodePort   
+# ---
+# #---dbservice---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: db
+# spec:
+#   selector:
+#     app: database
+#   ports:
+#     - protocol: TCP
+#       port: 5432  # Default port for PostgreSQL
+#       targetPort: 5432
+#   clusterIP: None  # For headless service if you want to use DNS resolution
+# ---
+# # --- Ingress for ALB (Assumes ALB Ingress Controller is Installed) ---
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: microservices-ingress
+#   annotations:
+#     alb.ingress.kubernetes.io/scheme: internet-facing
+#     alb.ingress.kubernetes.io/target-type: instance
+#     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
+#     alb.ingress.kubernetes.io/group.name: "microservices"
+#     alb.ingress.kubernetes.io/healthcheck-path: /health
+# spec:
+#   ingressClassName: alb
+#   rules:
+#     - http:
+#         paths:
+#           - path: /user
+#             pathType: Prefix
+#             backend:
+#               service:
+#                 name: user-service
+#                 port:
+#                   number: 80
+#           - path: /order
+#             pathType: Prefix
+#             backend:
+#               service:
+#                 name: order-service
+#                 port:
+#                   number: 80
