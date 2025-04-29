@@ -8,6 +8,15 @@ app = FastAPI()
 conn = psycopg2.connect("dbname=user_db user=dbadmin password=mysql12345 host=my-db.cz6ecsuycumr.us-east-1.rds.amazonaws.com")
 cursor = conn.cursor()
 
+@app.get("/health")
+def health_check():
+    try:
+        cursor.execute("SELECT 1")
+        return {"status": "ok"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Database connection failed: {str(e)}")
+    
+
 @app.get("/users/")
 def get_users(
     user_id: int | None = Query(None, description="User ID (required if user_name is not provided)"),
@@ -27,43 +36,3 @@ def get_users(
             "mobile_number" : users[2],
         }
     raise HTTPException(status_code=404, detail="users not found")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# from fastapi import FastAPI
-# import psycopg2
-
-# app = FastAPI()
-
-# # Database connection (PostgreSQL)
-# conn = psycopg2.connect("dbname=user_db user=postgres password=secret host=db")
-# cursor = conn.cursor()
-
-# @app.get("/users/{user_id}")
-# def get_user(user_id: int):
-#     cursor.execute("SELECT * FROM users WHERE id = %s", (user_id,))
-#     user = cursor.fetchone()
-#     return {"user": user}

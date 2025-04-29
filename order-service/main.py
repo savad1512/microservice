@@ -7,6 +7,14 @@ app = FastAPI()
 conn = psycopg2.connect("dbname=order_db user=dbadmin password=mysql12345 host=my-db.cz6ecsuycumr.us-east-1.rds.amazonaws.com")
 cursor = conn.cursor()
 
+@app.get("/health")
+def health_check():
+    try:
+        cursor.execute("SELECT 1")
+        return {"status": "ok"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Database connection failed: {str(e)}")
+    
 @app.get("/orders/")
 def get_order(
     order_id: int | None = Query(None, description="Order ID (required if customer_name is not provided)"),
