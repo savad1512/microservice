@@ -5,7 +5,7 @@ import psycopg2 # type: ignore
 app = FastAPI()
 
 # Database connection (PostgreSQL)
-conn = psycopg2.connect("dbname=user_db user=postgres password=secret host=db")
+conn = psycopg2.connect("dbname=user_db user=dbadmin password=mysql12345 host=my-db.cz6ecsuycumr.us-east-1.rds.amazonaws.com")
 cursor = conn.cursor()
 
 @app.get("/users/")
