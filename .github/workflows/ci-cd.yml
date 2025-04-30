@@ -33,7 +33,7 @@ jobs:
       - name: Build, tag, and push Docker image for user-service
         run: |
           docker build -t user-service ./user-service
-          docker tag user-service1:latest ${{ secrets.ECR_REPO_URL_1 }}/user-service:latest
+          docker tag user-service:latest ${{ secrets.ECR_REPO_URL_1 }}/user-service:latest
           docker push ${{ secrets.ECR_REPO_URL_1 }}/user-service:latest
 
       # Step 5: Log in to Amazon ECR for order-service
