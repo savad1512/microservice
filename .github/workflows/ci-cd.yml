@@ -25,34 +25,34 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      # Step 3: Log in to Amazon ECR for Microservice 1
-      - name: Log in to Amazon ECR for Microservice 1
+      # Step 3: Log in to Amazon ECR for user-service
+      - name: Log in to Amazon ECR for user-service
         uses: aws-actions/amazon-ecr-login@v1
 
-      # Step 4: Build, tag, and push Docker image for Microservice 1
-      - name: Build, tag, and push Docker image for Microservice 1
+      # Step 4: Build, tag, and push Docker image for user-service
+      - name: Build, tag, and push Docker image for user-service
         run: |
-          docker build -t microservice1 ./microservice1
-          docker tag microservice1:latest ${{ secrets.ECR_REPO_URL_1 }}/microservice1-repo:latest
-          docker push ${{ secrets.ECR_REPO_URL_1 }}/microservice1-repo:latest
+          docker build -t user-service ./user-service
+          docker tag user-service1:latest ${{ secrets.ECR_REPO_URL_1 }}/user-service:latest
+          docker push ${{ secrets.ECR_REPO_URL_1 }}/user-service:latest
 
-      # Step 5: Log in to Amazon ECR for Microservice 2
-      - name: Log in to Amazon ECR for Microservice 2
+      # Step 5: Log in to Amazon ECR for order-service
+      - name: Log in to Amazon ECR for order-service
         uses: aws-actions/amazon-ecr-login@v1
 
-      # Step 6: Build, tag, and push Docker image for Microservice 2
-      - name: Build, tag, and push Docker image for Microservice 2
+      # Step 6: Build, tag, and push Docker image for order-service
+      - name: Build, tag, and push Docker image for order-service
         run: |
-          docker build -t microservice2 ./microservice2
-          docker tag microservice2:latest ${{ secrets.ECR_REPO_URL_2 }}/microservice2-repo:latest
-          docker push ${{ secrets.ECR_REPO_URL_2 }}/microservice2-repo:latest
+          docker build -t order-service ./order-service
+          docker tag order-service:latest ${{ secrets.ECR_REPO_URL_2 }}/order-service:latest
+          docker push ${{ secrets.ECR_REPO_URL_2 }}/order-service:latest
 
-      # Step 7: Update ECS Service for Microservice 1
-      - name: Update ECS Service for Microservice 1
+      # Step 7: Update ECS Service for user-service
+      - name: Update ECS Service for user-service
         run: |
           aws ecs update-service --cluster ${{ secrets.ECS_CLUSTER_NAME }} --service ${{ secrets.ECS_SERVICE_1_NAME }} --force-new-deployment
 
-      # Step 8: Update ECS Service for Microservice 2
-      - name: Update ECS Service for Microservice 2
+      # Step 8: Update ECS Service for order-service
+      - name: Update ECS Service for order-service
         run: |
           aws ecs update-service --cluster ${{ secrets.ECS_CLUSTER_NAME }} --service ${{ secrets.ECS_SERVICE_2_NAME }} --force-new-deployment
