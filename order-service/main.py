@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Query, HTTPException # type: ignore
 import psycopg2 # type: ignore
 
-app = FastAPI()
+app = FastAPI(root_path="/order")
 
 # Database connection
 conn = psycopg2.connect("dbname=order_db user=dbadmin password=mysql12345 host=my-db.cz6ecsuycumr.us-east-1.rds.amazonaws.com")

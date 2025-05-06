@@ -47,12 +47,12 @@ jobs:
           docker tag order-service:latest ${{ secrets.ECR_REPO_URL_2 }}/order-service:latest
           docker push ${{ secrets.ECR_REPO_URL_2 }}/order-service:latest
 
-      # Step 7: Update ECS Service for user-service
-      - name: Update ECS Service for user-service
-        run: |
-          aws ecs update-service --cluster ${{ secrets.ECS_CLUSTER_NAME }} --service ${{ secrets.ECS_SERVICE_1_NAME }} --force-new-deployment
+      # # Step 7: Update ECS Service for user-service
+      # - name: Update ECS Service for user-service
+      #   run: |
+      #     aws ecs update-service --cluster ${{ secrets.ECS_CLUSTER_NAME }} --service ${{ secrets.ECS_SERVICE_1_NAME }} --force-new-deployment
 
-      # Step 8: Update ECS Service for order-service
-      - name: Update ECS Service for order-service
-        run: |
-          aws ecs update-service --cluster ${{ secrets.ECS_CLUSTER_NAME }} --service ${{ secrets.ECS_SERVICE_2_NAME }} --force-new-deployment
+      # # Step 8: Update ECS Service for order-service
+      # - name: Update ECS Service for order-service
+      #   run: |
+      #     aws ecs update-service --cluster ${{ secrets.ECS_CLUSTER_NAME }} --service ${{ secrets.ECS_SERVICE_2_NAME }} --force-new-deployment

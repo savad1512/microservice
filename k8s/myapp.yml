@@ -1,8 +1,15 @@
+# --- Namespace ---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: microservices
+---
 # --- User Service Deployment ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: user-service
+  namespace: microservices
 spec:
   replicas: 1
   selector:
@@ -18,25 +25,33 @@ spec:
         image: 017820706788.dkr.ecr.us-east-1.amazonaws.com/user-service:latest
         ports:
         - containerPort: 8000
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 10
 ---
 # --- User Service ---
 apiVersion: v1
 kind: Service
 metadata:
   name: user-service
+  namespace: microservices
 spec:
   selector:
-    app: user
+    app: user-service
   ports:
   - port: 80
     targetPort: 8000
-  type: NodePort 
+  type: ClusterIP
 ---
 # --- Order Service Deployment ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: order-service
+  namespace: microservices
 spec:
   replicas: 1
   selector:
@@ -52,42 +67,52 @@ spec:
         image: 017820706788.dkr.ecr.us-east-1.amazonaws.com/order-service:latest
         ports:
         - containerPort: 9000
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 10
 ---
 # --- Order Service ---
 apiVersion: v1
 kind: Service
 metadata:
   name: order-service
+  namespace: microservices
 spec:
   selector:
-    app: order
+    app: order-service
   ports:
   - port: 80
-    targetPort: 9000
-  type: NodePort   
+    targetPort: 8000
+  type: ClusterIP
 ---
-#---dbservice---
+# --- Database Service (Headless) ---
 apiVersion: v1
 kind: Service
 metadata:
   name: db
+  namespace: microservices
 spec:
   selector:
     app: database
   ports:
     - protocol: TCP
-      port: 5432  # Default port for PostgreSQL
+      port: 5432
       targetPort: 5432
-  clusterIP: None  # For headless service if you want to use DNS resolution
+  clusterIP: None
 ---
-# --- Ingress for ALB (Assumes ALB Ingress Controller is Installed) ---
+# --- Ingress for ALB ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: microservices-ingress
+  namespace: microservices
   annotations:
+    kubernetes.io/ingress.class: alb
     alb.ingress.kubernetes.io/scheme: internet-facing
-    alb.ingress.kubernetes.io/target-type: instance
+    alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
     alb.ingress.kubernetes.io/group.name: "microservices"
     alb.ingress.kubernetes.io/healthcheck-path: /health
@@ -110,3 +135,4 @@ spec:
                 name: order-service
                 port:
                   number: 80
+
