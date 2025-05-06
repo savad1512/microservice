@@ -64,4 +64,4 @@ jobs:
       # Step 10: Deploy both services to EKS using a single manifest
       - name: Deploy both services to EKS
         run: |
-          kubectl apply -f ./k8s/myapp.yml
+          kubectl apply -f ./k8s/myapp.yml -n microservices
