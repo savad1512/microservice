@@ -56,3 +56,12 @@ jobs:
       # - name: Update ECS Service for order-service
       #   run: |
       #     aws ecs update-service --cluster ${{ secrets.ECS_CLUSTER_NAME }} --service ${{ secrets.ECS_SERVICE_2_NAME }} --force-new-deployment
+      # Step 9: Set up kubectl for EKS cluster
+      - name: Set up kubectl for EKS cluster
+        run: |
+          aws eks --region ${{ secrets.AWS_REGION }} update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }}
+
+      # Step 10: Deploy both services to EKS using a single manifest
+      - name: Deploy both services to EKS
+        run: |
+          kubectl apply -f ./k8s/myapp.yml
