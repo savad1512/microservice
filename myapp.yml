@@ -1,0 +1,137 @@
+# --- Namespace ---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: microservices
+---
+# --- User Service Deployment ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  namespace: microservices
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+      - name: user-service
+        image: 017820706788.dkr.ecr.us-east-1.amazonaws.com/user-service:latest
+        ports:
+        - containerPort: 8000
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+---
+# --- User Service ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+  namespace: microservices
+spec:
+  selector:
+    app: user-service
+  ports:
+  - port: 80
+    targetPort: 8000  # Make sure this matches the container port
+  type: ClusterIP
+---
+# --- Order Service Deployment ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-service
+  namespace: microservices
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: order-service
+  template:
+    metadata:
+      labels:
+        app: order-service
+    spec:
+      containers:
+      - name: order-service
+        image: 017820706788.dkr.ecr.us-east-1.amazonaws.com/order-service:latest
+        ports:
+        - containerPort: 9000
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000  # Correct port for health checks
+          initialDelaySeconds: 5
+          periodSeconds: 10
+---
+# --- Order Service ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: order-service
+  namespace: microservices
+spec:
+  selector:
+    app: order-service
+  ports:
+  - port: 80
+    targetPort: 8000  # Correct targetPort for order-service
+  type: ClusterIP
+---
+# --- Database Service (Headless) ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: db
+  namespace: microservices
+spec:
+  selector:
+    app: database
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+  clusterIP: None
+---
+# --- Ingress for ALB ---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: microservices-ingress
+  namespace: microservices
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
+    alb.ingress.kubernetes.io/group.name: "microservices"
+    alb.ingress.kubernetes.io/healthcheck-path: /health
+spec:
+  ingressClassName: alb
+  rules:
+    - http:
+        paths:
+          - path: /user
+            pathType: Prefix
+            backend:
+              service:
+                name: user-service
+                port:
+                  number: 80
+          - path: /order
+            pathType: Prefix
+            backend:
+              service:
+                name: order-service
+                port:
+                  number: 80
