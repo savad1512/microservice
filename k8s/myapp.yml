@@ -43,7 +43,7 @@ spec:
     app: user-service
   ports:
   - port: 80
-    targetPort: 8000
+    targetPort: 8000  # Make sure this matches the container port
   type: ClusterIP
 ---
 # --- Order Service Deployment ---
@@ -70,7 +70,7 @@ spec:
         readinessProbe:
           httpGet:
             path: /health
-            port: 8000
+            port: 8000  # Correct port for health checks
           initialDelaySeconds: 5
           periodSeconds: 10
 ---
@@ -85,7 +85,7 @@ spec:
     app: order-service
   ports:
   - port: 80
-    targetPort: 8000
+    targetPort: 8000  # Correct targetPort for order-service
   type: ClusterIP
 ---
 # --- Database Service (Headless) ---
@@ -112,7 +112,7 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: alb
     alb.ingress.kubernetes.io/scheme: internet-facing
-    alb.ingress.kubernetes.io/target-type: instance  #
+    alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
     alb.ingress.kubernetes.io/group.name: "microservices"
     alb.ingress.kubernetes.io/healthcheck-path: /health
@@ -135,4 +135,3 @@ spec:
                 name: order-service
                 port:
                   number: 80
-
