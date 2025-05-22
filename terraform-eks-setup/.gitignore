@@ -5,3 +5,6 @@ terraform.exe
 .terraform/
 .terraform.lock.hcl
 my-key-pair.pem
+terraform.tfstate
+terraform.tfstate.backup
+
