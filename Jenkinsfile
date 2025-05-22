@@ -19,8 +19,8 @@ pipeline {
         stage('Build Docker Images') {
             steps {
                 script {
-                    docker.build("order-service", "./path/to/order-service")
-                    docker.build("user-service", "./path/to/user-service")
+                    docker.build("order-service", "./order-service")
+                    docker.build("user-service", "./user-service")
                 }
             }
         }

@@ -1,53 +1,56 @@
-name: CI/CD Pipeline for ECS Fargate
+# name: CI/CD Pipeline for ECS Fargate
 
-on:
-  push:
-    branches:
-      - main
+# on:
+#   push:
+#     branches:
+#       - main
 
-jobs:
-  build_and_deploy:
-    runs-on: ubuntu-latest
+# jobs:
+#   build_and_deploy:
+#     runs-on: ubuntu-latest
 
-    permissions:
-      id-token: write
-      contents: read
+#     permissions:
+#       id-token: write
+#       contents: read
 
-    steps:
-      # Step 1: Checkout the code
-      - name: Checkout code
-        uses: actions/checkout@v3
+#     steps:
+#       # Step 1: Checkout the code
+#       - name: Checkout code
+#         uses: actions/checkout@v3
 
-      # Step 2: Set up AWS credentials
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: ${{ secrets.AWS_REGION }}
+#       # Step 2: Set up AWS credentials
+#       - name: Configure AWS credentials
+#         uses: aws-actions/configure-aws-credentials@v2
+#         with:
+#           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+#           aws-region: ${{ secrets.AWS_REGION }}
 
-      # Step 3: Log in to Amazon ECR for user-service
-      - name: Log in to Amazon ECR for user-service
-        uses: aws-actions/amazon-ecr-login@v1
+#       # Step 3: Log in to Amazon ECR for user-service
+#       - name: Log in to Amazon ECR for user-service
+#         uses: aws-actions/amazon-ecr-login@v1
 
-      # Step 4: Build, tag, and push Docker image for user-service
-      - name: Build, tag, and push Docker image for user-service
-        run: |
-          docker build -t user-service ./user-service
-          docker tag user-service:latest ${{ secrets.ECR_REPO_URL_1 }}/user-service:latest
-          docker push ${{ secrets.ECR_REPO_URL_1 }}/user-service:latest
+#       # Step 4: Build, tag, and push Docker image for user-service
+#       - name: Build, tag, and push Docker image for user-service
+#         run: |
+#           docker build -t user-service ./user-service
+#           docker tag user-service:latest ${{ secrets.ECR_REPO_URL_1 }}/user-service:latest
+#           docker push ${{ secrets.ECR_REPO_URL_1 }}/user-service:latest
 
-      # Step 5: Log in to Amazon ECR for order-service
-      - name: Log in to Amazon ECR for order-service
-        uses: aws-actions/amazon-ecr-login@v1
+#       # Step 5: Log in to Amazon ECR for order-service
+#       - name: Log in to Amazon ECR for order-service
+#         uses: aws-actions/amazon-ecr-login@v1
 
-      # Step 6: Build, tag, and push Docker image for order-service
-      - name: Build, tag, and push Docker image for order-service
-        run: |
-          docker build -t order-service ./order-service
-          docker tag order-service:latest ${{ secrets.ECR_REPO_URL_2 }}/order-service:latest
-          docker push ${{ secrets.ECR_REPO_URL_2 }}/order-service:latest
-
-      # # Step 7: Update ECS Service for user-service
+#       # Step 6: Build, tag, and push Docker image for order-service
+#       - name: Build, tag, and push Docker image for order-service
+#         run: |
+#           docker build -t order-service ./order-service
+#           docker tag order-service:latest ${{ secrets.ECR_REPO_URL_2 }}/order-service:latest
+#           docker push ${{ secrets.ECR_REPO_URL_2 }}/order-service:latest
+ 
+ 
+      ##################################################
+      ## Step 7: Update ECS Service for user-service ##
+      ##################################################
       # - name: Update ECS Service for user-service
       #   run: |
       #     aws ecs update-service --cluster ${{ secrets.ECS_CLUSTER_NAME }} --service ${{ secrets.ECS_SERVICE_1_NAME }} --force-new-deployment
@@ -56,12 +59,15 @@ jobs:
       # - name: Update ECS Service for order-service
       #   run: |
       #     aws ecs update-service --cluster ${{ secrets.ECS_CLUSTER_NAME }} --service ${{ secrets.ECS_SERVICE_2_NAME }} --force-new-deployment
-      # Step 9: Set up kubectl for EKS cluster
-      - name: Set up kubectl for EKS cluster
-        run: |
-          aws eks --region ${{ secrets.AWS_REGION }} update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }}
+      
+      ############################################
+      ## Step 9: Set up kubectl for EKS cluster ##
+      ############################################
+      # - name: Set up kubectl for EKS cluster
+      #   run: |
+      #     aws eks --region ${{ secrets.AWS_REGION }} update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }}
 
-      # Step 10: Deploy both services to EKS using a single manifest
-      - name: Deploy both services to EKS
-        run: |
-          kubectl apply -f ./k8s/myapp.yml 
+      # # Step 10: Deploy both services to EKS using a single manifest
+      # - name: Deploy both services to EKS
+      #   run: |
+      #     kubectl apply -f ./k8s/myapp.yml 
