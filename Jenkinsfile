@@ -18,8 +18,8 @@ pipeline {
         stage('Build Docker Images') {
             steps {
                 script {
-                    docker.build("order-service", "./order-service")
-                    docker.build("user-service", "./user-service")
+                    docker.build("${ORDER_REPO}:latest", "./order-service")
+                    docker.build("${USER_REPO}:latest", "./user-service")
                 }
             }
         }
