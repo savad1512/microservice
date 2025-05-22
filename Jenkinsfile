@@ -39,26 +39,26 @@ pipeline {
                     export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
                     export AWS_REGION=${AWS_REGION}
 
-                    aws ecr get-login-password --region ${AWS_REGION} | \
-                    docker login --username AWS --password-stdin ${ECR_REGISTRY}
+                    aws ecr get-login-password --region $AWS_REGION | \
+                    docker login --username AWS --password-stdin $ECR_REGISTRY
                     '''
                 }
             }
-        }      
+        }
 
         stage('Tag and Push Images') {
             steps {
                 script {
                     // Tagging images
                     sh """
-                    docker tag order-service:latest ${ORDER_REPO}:latest
-                    docker tag user-service:latest ${USER_REPO}:latest
+                    docker tag order-service:latest ${ORDER_REPO}:${IMAGE_TAG}
+                    docker tag user-service:latest ${USER_REPO}:${IMAGE_TAG}
                     """
 
                     // Pushing to ECR
                     sh """
-                    docker push ${ORDER_REPO}:latest
-                    docker push ${USER_REPO}:latest
+                    docker push ${ORDER_REPO}:${IMAGE_TAG}
+                    docker push ${USER_REPO}:${IMAGE_TAG}
                     """
                 }
             }
