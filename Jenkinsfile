@@ -28,13 +28,15 @@ pipeline {
         stage('Login to ECR') {
             steps {
                 script {
-                    sh """
+                    sh '''
+                    export PATH=$PATH:/usr/local/bin
                     aws ecr get-login-password --region ${AWS_REGION} | \
                     docker login --username AWS --password-stdin ${ECR_REGISTRY}
-                    """
+                    '''
                 }
             }
         }
+
 
         stage('Tag and Push Images') {
             steps {
