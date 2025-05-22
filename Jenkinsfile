@@ -27,16 +27,24 @@ pipeline {
 
         stage('Login to ECR') {
             steps {
-                script {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'aws-ecr-creds',
+                        usernameVariable: 'AWS_ACCESS_KEY_ID',
+                        passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                    )
+                ]) {
                     sh '''
-                    export PATH=$PATH:/usr/local/bin
+                    export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+                    export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+                    export AWS_REGION=${AWS_REGION}
+
                     aws ecr get-login-password --region ${AWS_REGION} | \
                     docker login --username AWS --password-stdin ${ECR_REGISTRY}
                     '''
                 }
             }
-        }
-
+        }      
 
         stage('Tag and Push Images') {
             steps {
