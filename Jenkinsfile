@@ -6,7 +6,6 @@ pipeline {
         ECR_REGISTRY = '017820706788.dkr.ecr.us-east-1.amazonaws.com'
         ORDER_REPO = "${ECR_REGISTRY}/order-service"
         USER_REPO = "${ECR_REGISTRY}/user-service"
-        IMAGE_TAG = "${env.BUILD_NUMBER}"
     }
 
     stages {
@@ -51,14 +50,14 @@ pipeline {
                 script {
                     // Tagging images
                     sh """
-                    docker tag order-service:latest ${ORDER_REPO}:${IMAGE_TAG}
-                    docker tag user-service:latest ${USER_REPO}:${IMAGE_TAG}
+                    docker tag order-service:latest ${ORDER_REPO}:latest
+                    docker tag user-service:latest ${USER_REPO}:latest
                     """
 
                     // Pushing to ECR
                     sh """
-                    docker push ${ORDER_REPO}:${IMAGE_TAG}
-                    docker push ${USER_REPO}:${IMAGE_TAG}
+                    docker push ${ORDER_REPO}:latest
+                    docker push ${USER_REPO}:latest
                     """
                 }
             }
